@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreated {
+public class OrderDispatched {
     UUID orderId;
-    String item;
 }

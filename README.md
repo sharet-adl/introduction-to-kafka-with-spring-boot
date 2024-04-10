@@ -29,3 +29,13 @@ Plenty of useful information about your Introduction to Kafka with Spring Boot c
 ## Connect with the team at Lydtech Consulting
 * Visit us at [lydtechconsulting.com](https://www.lydtechconsulting.com/)
 * Visit our [LinkedIn](https://www.linkedin.com/company/lydtech-consulting) page
+
+## Diagram
+
+ kafka-console-producer   --<----------->--->   Dispatch   --<-------------->--->   kafka-console-consumer
+                            order.created                    order.dispatched
+
+## Sample message
+{"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item1"}
+
+
