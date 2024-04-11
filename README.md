@@ -35,7 +35,13 @@ Plenty of useful information about your Introduction to Kafka with Spring Boot c
  kafka-console-producer   --<----------->--->   Dispatch   --<-------------->--->   kafka-console-consumer
                             order.created                    order.dispatched
 
+![img.png](img.png)
+
+![img_1.png](img_1.png)
+
 ## Sample message
 {"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item1"}
+
+
 
 
