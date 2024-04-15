@@ -32,8 +32,54 @@ Plenty of useful information about your Introduction to Kafka with Spring Boot c
 
 ## Diagram
 
- kafka-console-producer   --<----------->--->   Dispatch   --<-------------->--->   kafka-console-consumer
-                            order.created                    order.dispatched
+```md diagram services and topics 
+                                                                                                                  
+                                                                                                                  
+                    OrderCreated MSG                      DispatchPreparing MSG                   TrackingStatus MSG                                                                              
+                  ┌───────────────┐                     ┌───────────────┐                       ┌───────────────┐ 
+         ┌───────►├┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼──────┐       ┌─────►├┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼────────┐      ┌──────►├┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼│ 
+         │        └───────────────┘      │       │      └───────────────┘        │      │       └───────────────┘ 
+         │         order.created         │       │       dispatch.tracking       │      │        tracking.status  
+         │                               │       │                               │      │                         
+ ┌───────┴───┐                        ┌──▼───────┴─┐                           ┌─▼──────┴─┐                       
+ │  ORDER    │                        │  DISPATCH  │                           │ TRACKING │                       
+ │   MS      │                        │    MS      │                           │   MS     │                       
+ └─────────▲─┘                        └──────────┬─┘                           └──────────┘                       
+           │                                     │                                                                
+           │                                     │                                                                
+           │                                     │                                                                
+           │                                     │                                                                
+           │                                     │      OrderDispatched MSG                                                        
+           │                                     │     ┌───────────────┐                                          
+           │                                     └────►├┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼│                                          
+           │                                           └───────────────┘                                          
+           │                                            order.dispatched                                          
+           │                                              │                                                       
+           └──────────────────────────────────────────────┘                                                       
+                                                                                                                  
+```
+
+```md Sample integration test
+                                                             
+                         ┌───────────────┐                   
+         ┌──────────────►├┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼────────┐          
+         │               └───────────────┘        │          
+         │                 dispatch.tracking      │          
+         │                                        │          
+ ┌───────┴────────┐                             ┌─▼────────┐ 
+ │   INTEGRATION  │                             │ TRACKING │ 
+ │     TEST       │                             │   MS     │ 
+ └───────────▲────┘                             └───────┬──┘ 
+             │           ┌───────────────┐              │    
+             └───────────┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┤◄─────────────┘    
+                         └───────────────┘                   
+                          tracking.status                    
+                                                             
+```
+```md shared consumer group
+
+```
+
 
 ![img.png](img.png)
 
@@ -43,5 +89,24 @@ Plenty of useful information about your Introduction to Kafka with Spring Boot c
 {"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item1"}
 
 
+## Assignments
+
+### Consume and produce events using Spring Kafka
+
+### Integration Test Assignment
+
+Create a new integration test class in the Tracking Service, with the appropriate class annotations that are needed for a spring boot integration test
+
+Setup a KafkaTestListener to consume from the tracking.status topic. The listener will need to increment a counter every time a message is consumed
+
+Add the listener to the spring context and autowire it into the integration test
+
+The test will send a DispatchPreparing event to the dispatch.tracking topic, so a KafkaTemplate will need to be autowired into the integration test class
+
+Use the Awaitility test library in the test to wait until the message received count, defined in the KafkaTestListener, has been incremented.
+
+Add a BeforeEach test setup method to ensure the partitions for the listener have had sufficient time to be assigned
+
+Create an application-test.properties file in order to specify the embedded kafka broker address
 
 

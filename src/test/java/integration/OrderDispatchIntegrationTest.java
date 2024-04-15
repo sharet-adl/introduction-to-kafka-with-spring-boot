@@ -3,6 +3,7 @@ package integration;
 import dev.lydtech.dispatch.DispatchConfiguration;
 import dev.lydtech.dispatch.message.DispatchPreparing;
 import dev.lydtech.dispatch.message.OrderCreated;
+import dev.lydtech.dispatch.message.OrderDispatched;
 import dev.lydtech.dispatch.util.TestEventData;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,11 +37,12 @@ import static org.hamcrest.Matchers.equalTo;
 @ActiveProfiles("test")
 @EmbeddedKafka(controlledShutdown = true)
 public class OrderDispatchIntegrationTest {
-    private final static String ORDER_CREATED_TOPIC = "order.created";
 
-    private final static String ORDER_DISPATHCED_TOPIC = "order.dispatched";
+    private final static String ORDER_CREATED_TOPIC = "order.created";          // IN
 
-    private final static String DISPATCH_TRACKING_TOPIC = "dispatch.tracking";
+    private final static String ORDER_DISPATCHED_TOPIC = "order.dispatched";    // OUT
+
+    private final static String DISPATCH_TRACKING_TOPIC = "dispatch.tracking";  // OUT
 
     @Autowired
     KafkaTemplate kafkaTemplate;
@@ -62,6 +64,7 @@ public class OrderDispatchIntegrationTest {
         }
     }
 
+    @Configuration
     public static class KafkaTestListener {
 
         AtomicInteger dispathPreparingCount = new AtomicInteger(0);
@@ -71,7 +74,12 @@ public class OrderDispatchIntegrationTest {
         void receiveDispatchPreparing(@Payload DispatchPreparing payload) {
             log.debug("Received DispatchPreparing: " +  payload);
             dispathPreparingCount.incrementAndGet();
+        }
 
+        @KafkaListener(groupId = "KafkaIntegrationTest", topics = ORDER_DISPATCHED_TOPIC)
+        void receiveDispatchPreparing(@Payload OrderDispatched payload) {
+            log.debug("Received OrderDispatched: " +  payload);
+            orderDispatchedCounter.incrementAndGet();
         }
 
     }

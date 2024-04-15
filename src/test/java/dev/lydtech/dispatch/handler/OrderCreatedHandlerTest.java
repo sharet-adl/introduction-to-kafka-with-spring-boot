@@ -37,7 +37,7 @@ class OrderCreatedHandlerTest {
     }
 
     @Test
-    void listen_ServiceThrowsException() throws ExecutionException, InterruptedException {
+    public void listen_ServiceThrowsException() throws ExecutionException, InterruptedException {
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
         doThrow(new RuntimeException("Service Failure")).when(dispatchServiceMock).process(testEvent);
 
