@@ -30,19 +30,22 @@ class OrderCreatedHandlerTest {
     @Test
     void listen_Success() throws ExecutionException, InterruptedException {
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
+        String key = randomUUID().toString();
         //handler.listen("some-payload");
 
-        handler.listen(testEvent);
-        verify(dispatchServiceMock, times(1)).process(testEvent);
+        handler.listen(0, key, testEvent);
+        verify(dispatchServiceMock, times(1)).process(key, testEvent);
     }
 
     @Test
     public void listen_ServiceThrowsException() throws ExecutionException, InterruptedException {
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
-        doThrow(new RuntimeException("Service Failure")).when(dispatchServiceMock).process(testEvent);
+        String key = randomUUID().toString();
 
-        handler.listen(testEvent);
+        doThrow(new RuntimeException("Service failure")).when(dispatchServiceMock).process(key, testEvent);
 
-        verify(dispatchServiceMock, times(1)).process(testEvent);
+        handler.listen(0, key, testEvent);
+
+        verify(dispatchServiceMock, times(1)).process(key, testEvent);
     }
 }

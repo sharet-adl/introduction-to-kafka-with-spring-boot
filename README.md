@@ -88,6 +88,22 @@ Plenty of useful information about your Introduction to Kafka with Spring Boot c
 ## Sample message
 {"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item1"}
 
+## CLI
+
+$ kafka/bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic order.created --property parse.key=true --property key.separator=:
+> "123":{"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item1"}
+
+$ kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic order.created
+$ kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic order.created --alter --partitions 5
+
+$ kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group dispatch.order.created.consumer
+
+
+
+## Notes
+
+The producer calculates a hash of the provided message key ( if provided ) and uses it to determine which partition to write the message to.
+The console-producer will add a Header with the key, when it writes it to kafka.
 
 ## Assignments
 

@@ -38,24 +38,27 @@ class DispatchServiceTest {
 
     @Test
     void process_Success() throws ExecutionException, InterruptedException {
-        when(kafkaProducerMock.send(anyString(), any(DispatchPreparing.class))).thenReturn(mock(CompletableFuture.class));
-        when(kafkaProducerMock.send(anyString(), any(OrderDispatched.class))).thenReturn(mock(CompletableFuture.class));
+        when(kafkaProducerMock.send(anyString(), anyString(), any(DispatchPreparing.class))).thenReturn(mock(CompletableFuture.class));
+        when(kafkaProducerMock.send(anyString(), anyString(), any(OrderDispatched.class))).thenReturn(mock(CompletableFuture.class));
+
+        String key = randomUUID().toString();
 
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
-        service.process(testEvent);
+        service.process(key, testEvent);
 
-        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), any(DispatchPreparing.class));
-        verify(kafkaProducerMock, times(1)).send(eq("order.dispatched"), any(OrderDispatched.class));
+        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), eq(key), any(DispatchPreparing.class));
+        verify(kafkaProducerMock, times(1)).send(eq("order.dispatched"), eq(key), any(OrderDispatched.class));
     }
 
     @Test
     public void testProcess_DispatchTrackingProducerThrowsException() throws ExecutionException, InterruptedException {
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
-        doThrow(new RuntimeException("dispatch tracking producer failure")).when(kafkaProducerMock).send(eq("dispatch.tracking"), any(OrderDispatched.class));
+        String key = randomUUID().toString();
+        doThrow(new RuntimeException("dispatch tracking producer failure")).when(kafkaProducerMock).send(eq("dispatch.tracking"), eq(key), any(OrderDispatched.class));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> service.process(testEvent));
+        Exception exception = assertThrows(RuntimeException.class, () -> service.process(key, testEvent));
 
-        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), any(DispatchPreparing.class));
+        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), eq(key), any(DispatchPreparing.class));
         verifyNoMoreInteractions(kafkaProducerMock);
         assertThat(exception.getMessage(), equalTo("dispatch tracking producer failure"));
     }
@@ -63,13 +66,14 @@ class DispatchServiceTest {
     @Test
     public void testProcess_OrderDispatchedProducerThrowsException() {
         OrderCreated testEvent = TestEventData.buildOrderCreatedEvent(randomUUID(), randomUUID().toString());
-        when(kafkaProducerMock.send(anyString(), any(DispatchPreparing.class))).thenReturn(mock(CompletableFuture.class));
-        doThrow(new RuntimeException("order dispatched producer failure")).when(kafkaProducerMock).send(eq("order.dispatched"), any(OrderDispatched.class));
+        String key = randomUUID().toString();
+        when(kafkaProducerMock.send(anyString(), anyString(), any(DispatchPreparing.class))).thenReturn(mock(CompletableFuture.class));
+        doThrow(new RuntimeException("order dispatched producer failure")).when(kafkaProducerMock).send(eq("order.dispatched"), eq(key), any(OrderDispatched.class));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> service.process(testEvent));
+        Exception exception = assertThrows(RuntimeException.class, () -> service.process(key, testEvent));
 
-        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), any(DispatchPreparing.class));
-        verify(kafkaProducerMock, times(1)).send(eq("order.dispatched"), any(OrderDispatched.class));
+        verify(kafkaProducerMock, times(1)).send(eq("dispatch.tracking"), eq(key), any(DispatchPreparing.class));
+        verify(kafkaProducerMock, times(1)).send(eq("order.dispatched"), eq(key), any(OrderDispatched.class));
         assertThat(exception.getMessage(), equalTo("order dispatched producer failure"));
     }
 }

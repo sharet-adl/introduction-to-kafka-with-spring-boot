@@ -20,17 +20,16 @@ public class DispatchService {
 
     private static final String DISPATCH_TRACKING_TOPIC = "dispatch.tracking";
     private static final String ORDER_DISPATCHED_TOPIC = "order.dispatched";
-
     private static final UUID APPLICATION_ID = randomUUID();
 
     private final KafkaTemplate<String, Object> kafkaProducer;
 
-    public void process(OrderCreated orderCreated) throws ExecutionException, InterruptedException {
+    public void process(String key, OrderCreated orderCreated) throws ExecutionException, InterruptedException {
         DispatchPreparing dispatchPreparing = DispatchPreparing.builder()
                 .orderId(orderCreated.getOrderId())
                 .build();
         // default is async, make it sync using the .get()
-        kafkaProducer.send(DISPATCH_TRACKING_TOPIC, dispatchPreparing).get();
+        kafkaProducer.send(DISPATCH_TRACKING_TOPIC, key, dispatchPreparing).get();
 
         OrderDispatched orderDispatched = OrderDispatched.builder()
                 .orderId(orderCreated.getOrderId())
@@ -38,8 +37,8 @@ public class DispatchService {
                 .notes("Dispatched: " + orderCreated.getItem())
                 .build();
         // default is async, make it sync using the .get()
-        kafkaProducer.send(ORDER_DISPATCHED_TOPIC, orderDispatched).get();
+        kafkaProducer.send(ORDER_DISPATCHED_TOPIC, key, orderDispatched).get();
 
-        log.info("Sent messages: orderId: " + orderCreated.getOrderId() + " - processedByID: " + APPLICATION_ID);
+        log.info("Sent messages: key: " + key + " - orderId: " + orderCreated.getOrderId() + " - processedById: " + APPLICATION_ID);
     }
 }
