@@ -108,6 +108,7 @@ The console-producer will add a Header with the key, when it writes it to kafka.
 ## Assignments
 
 ### Consume and produce events using Spring Kafka
+..
 
 ### Integration Test Assignment
 
@@ -125,4 +126,9 @@ Add a BeforeEach test setup method to ensure the partitions for the listener hav
 
 Create an application-test.properties file in order to specify the embedded kafka broker address
 
+### Consume Multiple Event Types from the same Topic
 
+The Dispatch Service will be updated to produce a new event that will be sent to the existing topic, 
+and the Tracking Service consumer will be updated to consume both event types from this topic. 
+
+The Tracking Service will also be updated to produce a new TrackingStatusUpdated event.
