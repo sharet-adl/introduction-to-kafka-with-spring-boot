@@ -1,5 +1,7 @@
 package dev.lydtech.dispatch.handler;
 
+import dev.lydtech.dispatch.exception.NotRetryableException;
+import dev.lydtech.dispatch.exception.RetryableException;
 import dev.lydtech.dispatch.message.OrderCreated;
 import dev.lydtech.dispatch.service.DispatchService;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +28,17 @@ public class OrderCreatedHandler {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void listen(@Header(KafkaHeaders.RECEIVED_PARTITION) Integer partition, @Header(KafkaHeaders.RECEIVED_KEY) String key, @Payload OrderCreated payload) {
-        log.info("Received message: partition: "+partition+" - key: " +key+ " - orderID: " + payload.getOrderId()+ " - item: " + payload.getItem());
+        log.info("Received message: partition: "+partition+" - key: " +key+ " - orderId: " + payload.getOrderId() + " - item: " + payload.getItem());
         try {
             dispatchService.process(key, payload);                    // delegate to dispatchService the payload
-        } catch (InterruptedException | ExecutionException | RuntimeException e) {
-            log.error("Processing failure", e);
+        } catch (RetryableException e) {
+            log.warn("Retryable exception: " + e.getMessage());
+            throw e;
+        }
+        // catch(Exception e) {
+        catch (InterruptedException | ExecutionException | RuntimeException e) {
+            log.error("NotRetryable exception: " + e.getMessage());
+            throw new NotRetryableException(e);
         }
     }
 }

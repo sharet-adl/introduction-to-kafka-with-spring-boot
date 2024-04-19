@@ -31,10 +31,15 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- no need anymore, auto included by spring-starter-web -->
+<!--		<dependency>-->
+<!--			<groupId>com.fasterxml.jackson.core</groupId>-->
+<!--			<artifactId>jackson-databind</artifactId>-->
+<!--			<version>2.14.2</version>-->
+<!--		</dependency>-->
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>2.14.2</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
 		<dependency>
@@ -51,6 +56,13 @@
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
 			<version>4.1.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- for integration test wiremocking -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-contract-wiremock</artifactId>
+			<version>4.0.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
