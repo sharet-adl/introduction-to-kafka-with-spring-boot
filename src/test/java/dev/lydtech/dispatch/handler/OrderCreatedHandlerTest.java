@@ -8,7 +8,6 @@ import dev.lydtech.dispatch.util.TestEventData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static java.util.UUID.randomUUID;
@@ -50,6 +49,8 @@ class OrderCreatedHandlerTest {
 
         Exception exception = assertThrows(NotRetryableException.class, () -> handler.listen(0, key, testEvent));
         assertThat(exception.getMessage(), equalTo("java.lang.RuntimeException: Service failure"));
+        verify(dispatchServiceMock, times(1)).process(key, testEvent);
+    }
 
     @Test
     public void testListen_ServiceThrowsRetryableException() throws Exception {
@@ -61,4 +62,4 @@ class OrderCreatedHandlerTest {
         assertThat(exception.getMessage(), equalTo("Service failure"));
         verify(dispatchServiceMock, times(1)).process(key, testEvent);
     }
-}ß
+}

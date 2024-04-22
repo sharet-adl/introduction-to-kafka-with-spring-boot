@@ -99,6 +99,19 @@ $ kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic order.crea
 $ kafka/bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group dispatch.order.created.consumer
 
 
+## Testing
+- test execution thread vs. application execution thread :: assure the breakpoint has 'Suspend=Thread' ( not All )
+
+- "200":{"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item_200"}    // expect no error, outbound event
+- "400":{"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item_400"}    // expect error, with no retry (maxAttempts=0), no outboud events Order.dispatched
+- "502":{"orderId": "2be645fd-3c0f-4fec-b21f-2af26b3d5f77", "item": "item_502"}    // expect 1 error (Bad Gateway), with retry and then success
+
+## DLT
+
+Default topic for DLQ/DLT is the original topic name, followed by ".DLT" - using spring kafak dead-letter publishing Recoverer.
+ Target for events that are not retryable, or that are retryable not exhausted the max retries.
+ Need to update the DefaultErrorHandler(), to pass a DeadLetterPublishingRecoverer() - which is using KafkaTemplate..
+
 
 ## Notes
 
